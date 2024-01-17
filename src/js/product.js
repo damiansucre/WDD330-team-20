@@ -1,9 +1,15 @@
-import { getLocalStorage, setLocalStorage } from "./utils.mjs";
+import { getLocalStorage, setLocalStorage, getParams } from "./utils.mjs";
 import ProductData from "./ProductData.mjs";
+import ProductDetails from "./ProductDetails.mjs";
 
 const dataSource = new ProductData("tents");
+const productId = getParams("product");
+
+const product = new ProductDetails(productId, dataSource);
+product.init();
 
 // Función para agregar un producto al carrito
+// eslint-disable-next-line no-shadow
 function addProductToCart(product) {
   // Obtener el carrito actual del almacenamiento local
   let cartItems = getLocalStorage("so-cart") || [];
@@ -22,8 +28,8 @@ function addProductToCart(product) {
 
 // add to cart button event handler
 async function addToCartHandler(e) {
-  const product = await dataSource.findProductById(e.target.dataset.id);
-  addProductToCart(product);
+  const selectedProduct = await dataSource.findProductById(e.target.dataset.id);
+  addProductToCart(selectedProduct);
 }
 
 // add listener to Add to Cart button
