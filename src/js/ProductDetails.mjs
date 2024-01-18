@@ -1,4 +1,4 @@
-import { setLocalStorage } from "./utils.mjs";
+import { getLocalStorage,setLocalStorage } from "./utils.mjs";
 
 function productDetailsTemplate(product) {
   return `<section class="product-detail"> <h3>${product.Brand.Name}</h3>
@@ -36,7 +36,19 @@ export default class ProductDetails {
       .addEventListener("click", this.addToCart.bind(this));
   }
   addToCart() {
-    setLocalStorage("so-cart", this.product);
+    // Obtener el carrito actual del almacenamiento local
+    let cartItems = getLocalStorage("so-cart") || [];
+
+    // Asegurarse de que cartItems sea un array
+    if (!Array.isArray(cartItems)) {
+      cartItems = [];
+    }
+
+    // Agregar el nuevo producto al carrito
+    cartItems.push(this.product);
+
+    // Guardar el carrito actualizado en el almacenamiento local
+    setLocalStorage("so-cart", cartItems);
   }
   renderProductDetails(selector) {
     const element = document.querySelector(selector);
