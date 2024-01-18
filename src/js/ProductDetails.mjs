@@ -1,7 +1,5 @@
 import { getLocalStorage, setLocalStorage } from "./utils.mjs";
 
-const cartItems = getLocalStorage("so-cart") || [];
-
 function productDetailsTemplate(product) {
   return `<section class="product-detail">
     <h3>${product.Brand.Name}</h3>
@@ -36,9 +34,28 @@ export default class ProductDetails {
   .addEventListener("click", this.addToCart.bind(this));
   }
 
-addToCart(){
+/* addToCart(){
+  const cartItems = getLocalStorage("so-cart") || [];
+  cartItems.push(this.product);
   setLocalStorage("so-cart", this.product);
+} */
+
+addToCart() {
+  // get the cart items from local storage
+  let cartItems = getLocalStorage("so-cart") || [];
+
+  // check if cartItems is an array
+  if (!Array.isArray(cartItems)) {
+    cartItems = [];
+  }
+
+  // add the current product to the cart
+  cartItems.push(this.product);
+
+  // set the cart items in local storage
+  setLocalStorage("so-cart", cartItems);
 }
+
 renderProductDetails(selector) {
   const element = document.querySelector(selector);
   element.insertAdjacentHTML("afterBegin", productDetailsTemplate(this.product));
