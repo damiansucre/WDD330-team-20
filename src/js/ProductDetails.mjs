@@ -22,7 +22,7 @@ export default class ProductDetails {
     this.product = {};
     this.dataSource = dataSource;
   }
-   async init() {
+  async init() {
     // use our datasource to get the details for the current product. findProductById will return a promise! use await or .then() to process it
     this.product = await this.dataSource.findProductById(this.productId);
     // once we have the product details we can render out the HTML
@@ -30,35 +30,35 @@ export default class ProductDetails {
     // once the HTML is rendered we can add a listener to Add to Cart button
     // Notice the .bind(this). Our callback will not work if we don't include that line. Review the readings from
     document
-  .getElementById("addToCart")
-  .addEventListener("click", this.addToCart.bind(this));
+      .getElementById("addToCart")
+      .addEventListener("click", this.addToCart.bind(this));
   }
 
-/* addToCart(){
-  const cartItems = getLocalStorage("so-cart") || [];
-  cartItems.push(this.product);
-  setLocalStorage("so-cart", this.product);
-} */
+  /* addToCart(){
+    const cartItems = getLocalStorage("so-cart") || [];
+    cartItems.push(this.product);
+    setLocalStorage("so-cart", this.product);
+  } */
 
-addToCart() {
-  // get the cart items from local storage
-  let cartItems = getLocalStorage("so-cart") || [];
+  addToCart() {
+    // get the cart items from local storage
+    let cartItems = getLocalStorage("so-cart") || [];
 
-  // check if cartItems is an array
-  if (!Array.isArray(cartItems)) {
-    cartItems = [];
+    // check if cartItems is an array
+    if (!Array.isArray(cartItems)) {
+      cartItems = [];
+    }
+
+    // add the current product to the cart
+    cartItems.push(this.product);
+
+    // set the cart items in local storage
+    setLocalStorage("so-cart", cartItems);
   }
 
-  // add the current product to the cart
-  cartItems.push(this.product);
-
-  // set the cart items in local storage
-  setLocalStorage("so-cart", cartItems);
-}
-
-renderProductDetails(selector) {
-  const element = document.querySelector(selector);
-  element.insertAdjacentHTML("afterBegin", productDetailsTemplate(this.product));
-};
+  renderProductDetails(selector) {
+    const element = document.querySelector(selector);
+    element.insertAdjacentHTML("afterBegin", productDetailsTemplate(this.product));
+  };
 }
 
