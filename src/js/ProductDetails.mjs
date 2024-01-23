@@ -54,6 +54,7 @@ export default class ProductDetails {
 
     // set the cart items in local storage
     setLocalStorage("so-cart", cartItems);
+    document.dispatchEvent(new Event("cartUpdated"));
   }
 
   renderProductDetails(selector) {
