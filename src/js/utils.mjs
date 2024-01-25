@@ -47,6 +47,8 @@ export function renderListWithTemplate(
   parentElement.insertAdjacentHTML(position, htmlStrings.join(""));
 }
 
+//Copy the renderListWithTemplate function and paste it into the utils.mjs module.
+
 export function renderWithTemplate(template, parentElement, data = {}, position = "afterbegin"){
   parentElement.insertAdjacentHTML(position,template);
 }
