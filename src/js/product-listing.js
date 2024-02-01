@@ -12,4 +12,5 @@ const list = new ProductListing(
 
 list.init();
 //new code
-loadHeaderFooter();
+loadHeaderFooter(); 
+

@@ -16,6 +16,7 @@ import { getLocalStorage, setLocalStorage } from "./utils.mjs";
   </section>`;
 } */
 
+
 export default class ProductDetails {
   constructor(productId, dataSource) {
     this.productId = productId;
@@ -32,12 +33,6 @@ export default class ProductDetails {
     document.getElementById("addToCart")
     .addEventListener("click", this.addToCart.bind(this));
   }
-
-  /* addToCart(){
-    const cartItems = getLocalStorage("so-cart") || [];
-    cartItems.push(this.product);
-    setLocalStorage("so-cart", this.product);
-  } */
 
   addToCart() {
     // get the cart items from local storage
