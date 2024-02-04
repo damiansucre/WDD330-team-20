@@ -13,16 +13,25 @@ export function getLocalStorage(key) {
 export function setLocalStorage(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
 }
+// set a listener for both touchend and click
+export function setClick(selector, callback) {
+  qs(selector).addEventListener("touchend", (event) => {
+    event.preventDefault();
+    callback();
+  });
+  qs(selector).addEventListener("click", callback);
+}
 
-// helper to get parameter strings
+// pass parameters through the url
 export function getParam(param) {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const product = urlParams.get(param);
+
   return product;
 }
-
-// function to take a list of objects and a template and insert the objects as HTML into the DOM
+// takes a template, html element and a JS list. It then adds those
+// list items to the html element using the template.
 export function renderListWithTemplate(
   templateFn,
   parentElement,
@@ -31,44 +40,65 @@ export function renderListWithTemplate(
   clear = false
 ) {
   const htmlStrings = list.map(templateFn);
-  // if clear is true we need to clear out the contents of the parent.
   if (clear) {
-    parentElement.innerHTML = "";
+    parentElement.textContent = "";
   }
   parentElement.insertAdjacentHTML(position, htmlStrings.join(""));
 }
 
-// function to take an optional object and a template and insert the objects as HTML into the DOM
-export function renderWithTemplate(template, parentElement, data, callback) {
-  parentElement.insertAdjacentHTML("afterbegin", template);
-  //if there is a callback...call it and pass data
-  if (callback) {
-    callback(data);
+// takes a template, html element and a JS list. It then adds those
+// list items to the html element using the template.
+export function renderWithTemplate(template, parentElement, data = {}, position = "afterbegin") {
+  parentElement.insertAdjacentHTML(position, template);
+  //if (callback) {
+  //  callback(data)
+  //}
+}
+
+export async function loadHeaderFooter(){
+  const header = await loadTemplate("../partials/header.html")
+  const footer = await loadTemplate("../partials/footer.html")
+
+  const headerElement = document.getElementById("main-header")
+  const footerElement = document.getElementById("main-footer")
+
+  renderWithTemplate(header, headerElement)
+  renderWithTemplate(footer, footerElement)
+
+  getNumFromCart()
+}
+
+async function loadTemplate(path){
+  let html = await fetch(path)
+  const template = await html.text()
+  return template
+}
+
+export function getNumFromCart() {
+  let num = "";
+  const list = getLocalStorage("so-cart");
+  if (list != null) {
+    num = list.length;
   }
+  document.querySelector(".cart-num").innerHTML = num;
 }
 
-async function loadTemplate(path) {
-  const res = await fetch(path);
-  const template = await res.text();
-  return template;
-}
+export function alertMessage(message, scroll = true) {
+  const alert = document.createElement("div");
+  alert.classList.add("alert");
+  alert.innerHTML = `<p>${message}</p><span>X</span>`;
 
-// function to dynamically load the header and footer into a page
-export async function loadHeaderFooter() {
-  const headerTemplate = await loadTemplate("../partials/header.html");
-  const headerElement = document.querySelector("#main-header");
-  const footerTemplate = await loadTemplate("../partials/footer.html");
-  const footerElement = document.querySelector("#main-footer");
-
-  renderWithTemplate(headerTemplate, headerElement);
-  renderWithTemplate(footerTemplate, footerElement);
-}
-
-// set a listener for both touchend and click
-export function setClick(selector, callback) {
-  qs(selector).addEventListener("touchend", (event) => {
-    event.preventDefault();
-    callback();
+  alert.addEventListener("click", function (e) {
+    if (e.target.tagName == "SPAN") {
+      main.removeChild(this);
+    }
   });
-  qs(selector).addEventListener("click", callback);
+  const main = document.querySelector("main");
+  main.prepend(alert);
+  if (scroll) window.scrollTo(0, 0);
+}
+
+export function removeAlerts() {
+  const alerts = document.querySelectorAll(".alert");
+  alerts.forEach((alert) => document.querySelector("main").removeChild(alert))
 }
