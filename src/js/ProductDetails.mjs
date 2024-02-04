@@ -1,99 +1,4 @@
-
-
-/* function productDetailsTemplate(product) {
-  const template = `<section class="product-detail"> 
-  <h3>${product.Brand.Name}</h3>
-    <h2 class="divider">${product.NameWithoutBrand}</h2>
-
-    <img class="divider" src="${product.Image}" alt="${product.NameWithoutBrand}" />
-    
-    <p class="product-card__price"><span class="product-card__discount">$${product.SuggestedRetailPrice}</span>$${product.FinalPrice} span class="flag-discount">sale </span</p>
-    <p class="product__color">${product.Colors[0].ColorName}</p>
-    <p class="product__description">${product.DescriptionHtmlSimple}</p>
-    <div class="product-detail__add">
-      <button id="addToCart" data-id="${product.Id}">Add to Cart</button>
-    </div>
-  </section>`;
-} */
-
-
-/* export default class ProductDetails {
-  constructor(productId, dataSource) {
-    this.productId = productId;
-    this.product = {};
-    this.dataSource = dataSource;
-  }
-  async init() {
-    // use our datasource to get the details for the current product. findProductById will return a promise! use await or .then() to process it
-    this.product = await this.dataSource.findProductById(this.productId);
-    // once we have the product details we can render out the HTML
-    this.renderProductDetails("main");
-    // once the HTML is rendered we can add a listener to Add to Cart button
-    // Notice the .bind(this). Our callback will not work if we don't include that line. Review the readings from
-    document.getElementById("addToCart")
-    .addEventListener("click", this.addToCart.bind(this));
-  }
-
-  addToCart() {
-    // get the cart items from local storage
-    let cartItems = getLocalStorage("so-cart") || [];
-
-
-    // add the current product to the cart
-    cartItems.push(this.product);
-
-    // set the cart items in local storage
-    setLocalStorage("so-cart", cartItems);
-    document.dispatchEvent(new Event("cartUpdated"));
-  }
-
-  renderProductDetails(selector) {
-    const product = this.product;
-    const element = document.querySelector(selector);
-    const template = `<section class="product-detail"> <h3>${product.Brand.Name}</h3>
-    <h2 class="divider">${product.NameWithoutBrand}</h2>
-    <img
-        class="divider"
-        src="${product.Image}"
-        alt="${product.NameWithoutBrand}"
-    />
-    <p class="product-card__price">
-       <span class="product-card__discount">$${product.SuggestedRetailPrice} </span>
-       $${product.FinalPrice}
-       <span class="flag-discount">sale</span>
-    </p>
-    <p class="product__color">${product.Colors[0].ColorName}</p>
-    <p class="product__description">
-    ${product.DescriptionHtmlSimple}
-    </p>
-    <div class="product-detail__add">
-        <button id="addToCart" data-id="${product.Id}">Add to Cart</button>
-    </div></section>`;
-
-    element.insertAdjacentHTML("afterBegin", template);
-  };
-}
- */
-
 import { setLocalStorage, getLocalStorage } from "./utils.mjs";
-
-function productDetailsTemplate(product) {
-  return `<section class="product-detail"> <h3>${product.Brand.Name}</h3>
-    <h2 class="divider">${product.NameWithoutBrand}</h2>
-    <img
-      class="divider"
-      src="${product.Images.PrimaryLarge}"
-      alt="${product.NameWithoutBrand}"
-    />
-    <p class="product-card__price">$${product.FinalPrice}</p>
-    <p class="product__color">${product.Colors[0].ColorName}</p>
-    <p class="product__description">
-    ${product.DescriptionHtmlSimple}
-    </p>
-    <div class="product-detail__add">
-      <button id="addToCart" data-id="${product.Id}">Add to Cart</button>
-    </div></section>`;
-}
 
 export default class ProductDetails {
   constructor(productId, dataSource) {
@@ -103,56 +8,75 @@ export default class ProductDetails {
   }
   async init() {
     // use our datasource to get the details for the current product. findProductById will return a promise! use await or .then() to process it
-    this.product = await this.dataSource.findProductById(this.productId);
     // once we have the product details we can render out the HTML
-    this.renderProductDetails("main");
     // once the HTML is rendered we can add a listener to Add to Cart button
     // Notice the .bind(this). Our callback will not work if we don't include that line. Review the readings from this week on 'this' to understand why.
+    this.product = await this.dataSource.findProductById(this.productId);
+    this.renderProductDetails("main");
     document
       .getElementById("addToCart")
       .addEventListener("click", this.addToCart.bind(this));
   }
   addToCart() {
-    let cartContents = getLocalStorage("so-cart");
-    //check to see if there was anything there
-    if (!cartContents) {
-      cartContents = [];
-    }
-    // then add the current product to the list
-    cartContents.push(this.product);
-    setLocalStorage("so-cart", cartContents);
-  }
-  renderProductDetails(selector) {
-    const element = document.querySelector(selector);
-    element.insertAdjacentHTML(
-      "afterBegin",
-      productDetailsTemplate(this.product)
+    let cart = getLocalStorage("so-cart") || [];
+
+    // Check if the product is already in the cart
+    const existingProductIndex = cart.findIndex(
+      (item) => item.Id === this.product.Id
     );
+
+    if (existingProductIndex !== -1) {
+      // If the product is already in the cart, increment its quantity
+      cart[existingProductIndex].quantity =
+        (cart[existingProductIndex].quantity || 1) + 1;
+    } else {
+      // If the product is not in the cart, add it with quantity 1
+      this.product.quantity = 1;
+      cart.push(this.product);
+    }
+
+    // Update the final price based on quantity
+    if (cart[existingProductIndex]) {
+      cart[existingProductIndex].FinalPrice =
+        (cart[existingProductIndex].FinalPrice || 0) *
+        cart[existingProductIndex].quantity;
+    }
+
+    setLocalStorage("so-cart", cart);
+    document.querySelector(".cart-num").innerHTML = getLocalStorage("so-cart").length;
+    document.querySelector("div.cart").style.cssText = 
+  `position: relative;
+  animation-name: shoppingCart;
+  animation-duration: .35s;
+  animation-iteration-count: 5;`;
+  /*document.querySelector("div.cart").style.cssText = 
+  `animation: shoppingCart 0.35s 4;`;*/
   }
 
   renderProductDetails(selector) {
     const product = this.product;
     const element = document.querySelector(selector);
-    const template = `<section class="product-detail"> <h3>${product.Brand.Name}</h3>
-    <h2 class="divider">${product.NameWithoutBrand}</h2>
-    <img
-        class="divider"
-        src="${product.Images.PrimaryLarge}"
-        alt="${product.NameWithoutBrand}"
-    />
-    <p class="product-card__price">
-       <span class="product-card__discount">$${product.SuggestedRetailPrice} </span>
-       $${product.FinalPrice}
-       <span class="flag-discount">sale</span>
-    </p>
-    <p class="product__color">${product.Colors[0].ColorName}</p>
-    <p class="product__description">
-    ${product.DescriptionHtmlSimple}
-    </p>
-    <div class="product-detail__add">
-        <button id="addToCart" data-id="${product.Id}">Add to Cart</button>
-    </div></section>`;
 
-    element.insertAdjacentHTML("afterBegin", template);
-  };
+    const template = `<section class="product-detail"> <h3>${product.Brand.Name}</h3>
+        <h2 class="divider">${product.NameWithoutBrand}</h2>
+        <img
+            class="divider"
+            src="${product.Images.PrimaryLarge}"
+            alt="${product.NameWithoutBrand}"
+        />
+        <p class="product-card__price">
+           <span class="product-card__discount">$${product.SuggestedRetailPrice} </span>
+           $${product.FinalPrice}
+           <span class="flag-discount">sale</span>
+        </p>
+        <p class="product__color">${product.Colors[0].ColorName}</p>
+        <p class="product__description">
+        ${product.DescriptionHtmlSimple}
+        </p>
+        <div class="product-detail__add">
+            <button id="addToCart" data-id="${product.Id}">Add to Cart</button>
+        </div></section>`;
+
+    element.insertAdjacentHTML("afterbegin", template);
+  }
 }
