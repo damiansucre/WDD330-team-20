@@ -11,7 +11,9 @@ export default class ProductListing {
   }
   async init() {
     // our dataSource will return a Promise...so we can use await to resolve it.
-    this.list = await this.dataSource.getData();
+    this.list = await this.dataSource.getData(this.category);
+    //this.sortProductList();
+    //document.querySelector(".category-title").innerHTML = this.category;
     // render the list
     this.renderList(this.list);
   }
@@ -19,7 +21,7 @@ export default class ProductListing {
   productCardTemplate(product) {
     return `<li class="product-card">
             <a href="/product_pages/index.html?product=${product.Id}">
-            <img src="${product.Image}" alt="Image of ${product.Name}"/>
+            <img src="${product.Images.PrimaryMedium}" alt="Image of ${product.Name}"/>
             <div class="badge-overlay">
             <span class="top-right badge">Sale</span></div>
             <h3 class="card__brand">${product.Brand.Name}</h3>

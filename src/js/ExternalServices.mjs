@@ -1,17 +1,17 @@
-const baseURL = import.meta.env.VITE_SERVER_URL;
+const baseURL = import.meta.env.VITE_SERVER_URL
+//const baseURL = "https://server-nodejs.cit.byui.edu:3000/";
 
 function convertToJson(res) {
   if (res.ok) {
     return res.json();
   } else {
-    throw { name: 'servicesError', message: res };
+    throw new Error("Bad Response");
   }
 }
 
 export default class ExternalServices {
   constructor(category) {
-    // this.category = category;
-    // this.path = `../json/${this.category}.json`;
+    this.category = category; // Add this line to store the category
   }
 
   async getData(category) {
@@ -19,9 +19,10 @@ export default class ExternalServices {
     const data = await convertToJson(response);
     return data.Result;
   }
+
   async findProductById(id) {
-    const products = await fetch(baseURL + `product/${id}`);
-    const data = await convertToJson(products);
+    const response = await fetch(baseURL + `product/${id}`);
+    const data = await convertToJson(response);
     return data.Result;
   }
 
@@ -33,30 +34,6 @@ export default class ExternalServices {
       },
       body: JSON.stringify(payload),
     };
-    return await fetch(baseURL + `checkout/`, options).then(convertToJson);
-  }
-
-  async loginRequest(creds) {
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(creds),
-    };
-    const response = await fetch(baseURL + "login", options).then(
-      convertToJson
-    );
-    return response.accessToken;
-  }
-
-  async getOrders(token) {
-    const options = {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-    };
-    return await fetch(baseURL + "orders", options).then(convertToJson);   
+    return await fetch(baseURL + "checkout/", options).then(convertToJson);
   }
 }
